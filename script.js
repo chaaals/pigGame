@@ -16,6 +16,7 @@ const playerTwo = document.querySelector('.player--1');
 let scores = [0, 0];
 let currentScore = 0;
 let activePlayer = 0;
+let playing = true;
 
 // Game functions
 const diceRoll = function () {
@@ -56,6 +57,7 @@ const gameReset = function (activePlayer) {
   scores = [0, 0];
   currentScore = 0;
   activePlayer = 0;
+  playing = true;
 
   if (playerTwo.classList.contains('player--active')) {
     playerTwo.classList.remove('player--active');
@@ -77,33 +79,37 @@ diceHidden();
 
 // Game logic
 btnDiceRoll.addEventListener('click', function () {
-  let rolledDice = diceRoll();
-  console.log(rolledDice);
-  displayDiceImage(rolledDice);
-  diceShown();
-  if (rolledDice !== 1) {
-    currentScore += rolledDice;
-    activePlayerTextContent(activePlayer, currentScore);
-  } else {
-    if (activePlayer === 0) {
-      scores[activePlayer] += currentScore;
-      score0Elmnt.textContent = scores[activePlayer];
-      currentScore = 0;
-
+  if (playing) {
+    let rolledDice = diceRoll();
+    console.log(rolledDice);
+    displayDiceImage(rolledDice);
+    diceShown();
+    if (rolledDice !== 1) {
+      currentScore += rolledDice;
       activePlayerTextContent(activePlayer, currentScore);
-      //   console.log(scores);
-      activePlayer = playerTwoActive(activePlayer);
-      //   activePlayer = activePlayer === 0 ? 1 : 0;
     } else {
-      scores[activePlayer] += currentScore;
-      score1Elmnt.textContent = scores[activePlayer];
-      currentScore = 0;
+      if (activePlayer === 0) {
+        scores[activePlayer] += currentScore;
+        score0Elmnt.textContent = scores[activePlayer];
+        currentScore = 0;
 
-      activePlayerTextContent(activePlayer, currentScore);
-      //   console.log(scores);
-      activePlayer = playerOneActive(activePlayer);
-      //   activePlayer = activePlayer === 0 ? 1 : 0;
+        activePlayerTextContent(activePlayer, currentScore);
+        //   console.log(scores);
+        activePlayer = playerTwoActive(activePlayer);
+        //   activePlayer = activePlayer === 0 ? 1 : 0;
+      } else {
+        scores[activePlayer] += currentScore;
+        score1Elmnt.textContent = scores[activePlayer];
+        currentScore = 0;
+
+        activePlayerTextContent(activePlayer, currentScore);
+        //   console.log(scores);
+        activePlayer = playerOneActive(activePlayer);
+        //   activePlayer = activePlayer === 0 ? 1 : 0;
+      }
     }
+  } else {
+    alert('This game has finished. Press new game to restart.');
   }
 });
 
@@ -116,9 +122,10 @@ btnHold.addEventListener('click', function () {
   activePlayerTextContent(activePlayer, currentScore);
 
   if (scores[activePlayer] >= 100) {
-    alert(
-      `Player ${scores[0] > scores[1] ? 'Player 1 Wins!' : 'Player 2 Wins!'}`
-    );
+    playing = false;
+    document
+      .querySelector(`.player--${activePlayer}`)
+      .classList.add('player--winner');
   } else {
     if (activePlayer === 0) {
       activePlayer = playerTwoActive(activePlayer);
@@ -129,5 +136,8 @@ btnHold.addEventListener('click', function () {
 });
 
 btnNewGame.addEventListener('click', function () {
+  document
+    .querySelector(`.player--${activePlayer}`)
+    .classList.toggle('player--winner');
   gameReset(activePlayer);
 });
